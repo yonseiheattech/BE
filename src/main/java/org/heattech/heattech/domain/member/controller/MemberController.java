@@ -33,4 +33,10 @@ public class MemberController {
         LoginResponseDto loginResponse = memberService.login(dto,response);
         return ResponseEntity.ok(loginResponse);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        memberService.logout(response);
+        return ResponseEntity.noContent().build();
+    }
 }

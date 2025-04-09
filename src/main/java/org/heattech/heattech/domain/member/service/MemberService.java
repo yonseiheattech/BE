@@ -50,8 +50,9 @@ public class MemberService {
         }
 
         String accessToken = jwtUtil.generateAccessToken(member.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getUsername());
 
-        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -59,11 +60,40 @@ public class MemberService {
                 .maxAge(Duration.ofHours(1))
                 .build();
 
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(Duration.ofHours(24))
+                .build();
 
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());//이럼 헤더에 달림
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
+        return new LoginResponseDto(member.getUsername(), accessToken, refreshToken);
+    }
 
-        response.addHeader("Set-Cookie", cookie.toString());//이럼 헤더에 달림
+    public void logout(HttpServletResponse response) {
+        //삭제용 쿠키
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
 
-        return new LoginResponseDto(member.getUsername(), accessToken);
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
     }
 }

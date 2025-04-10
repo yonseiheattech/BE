@@ -7,6 +7,7 @@ import org.heattech.heattech.domain.letter.dto.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.LetterReplyDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -21,12 +22,13 @@ public class LetterService {
 
     }
 
-    public String generateUniqueCode() {
+    public String generateUniqueCode(Long senderId) {
         Random random = new Random();
         int number = 10000000 + random.nextInt(90000000);
 
         Letter letter = Letter.builder()
                 .code(String.valueOf(number))
+                .senderId(senderId)
                 .status(Status.ISSUED)
                 .issuedAt(LocalDateTime.now())
                 .build();
@@ -37,16 +39,24 @@ public class LetterService {
         //추후 DB에서 중복 조회
     }
 
+    @Transactional//save 안해도 됨?
     public Long registerLetter(LetterRegisterDto dto, Long senderIdFromAuth) {
-        //유효한 코드인지 조회도 해야함.
-        Letter letter = Letter.builder()
-                .code(dto.getCode())
-                .senderId(senderIdFromAuth)
-                .status(Status.REGISTERED)
-                .registeredAt(LocalDateTime.now())
-                .build();
 
-        return letterRepository.save(letter).getId();
+        Letter letter = letterRepository.findByCode(dto.getCode())
+                .orElseThrow(() -> new IllegalArgumentException("코드가 잘못됨"));
+
+        if(!letter.getSenderId().equals(senderIdFromAuth)) {
+            throw new IllegalStateException("본인이 발급한 코드만 등록할 수 있습니다");
+        }
+
+        if (letter.getStatus() != Status.ISSUED) {
+            throw new IllegalStateException("이미 등록된 코드입니다");
+        }
+
+        letter.setStatus(Status.REGISTERED);
+        letter.setRegisteredAt(LocalDateTime.now());
+
+        return letter.getId();
     }
 
     public Long replyLetter(LetterReplyDto dto, Long volunteerIdFromAuth) {
@@ -65,7 +75,7 @@ public class LetterService {
         Letter letter = letterRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("코드가 없네"));
 
-        if (letter.getSenderId().equals(senderId)) {
+        if (!letter.getSenderId().equals(senderId)) {
             throw new IllegalStateException("본인의 편지만 취소할 수 있습니다.");
         }
 

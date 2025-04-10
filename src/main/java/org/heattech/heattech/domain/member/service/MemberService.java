@@ -1,6 +1,5 @@
 package org.heattech.heattech.domain.member.service;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse; //클라이언트에게 응답 보낼 때 사용되ㄴ는 객체
 import org.heattech.heattech.domain.member.domain.Member;
 import org.heattech.heattech.domain.member.dto.LoginRequestDto;
@@ -8,7 +7,7 @@ import org.heattech.heattech.domain.member.dto.LoginResponseDto;
 import org.heattech.heattech.domain.member.dto.MemberResponseDto;
 import org.heattech.heattech.domain.member.dto.SignupRequestDto;
 import org.heattech.heattech.domain.member.repository.MemberRepository;
-import org.heattech.heattech.domain.member.util.JwtUtil;
+import org.heattech.heattech.jwt.JwtUtil;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -94,6 +93,11 @@ public class MemberService {
 
         response.addHeader("Set-Cookie", accessTokenCookie.toString());
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+    }
 
+    public Long findIdByUsername(String username) {
+        return memberRepository.findByUsername(username)
+                .orElseThrow(()-> new IllegalArgumentException("유저 없음"))
+                .getId();
     }
 }

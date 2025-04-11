@@ -23,6 +23,9 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private Long kakaoId;
+
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -47,6 +50,13 @@ public class Member {
     public Member(String username, String password,Role role) {
         this.username = username;
         this.password = password;
+        this.role = role;
+    }
+
+    //카카오 로그인 전용
+    public Member(Long kakaoId, String nickname, Role role) {
+        this.kakaoId = kakaoId;
+        this.username = nickname;
         this.role = role;
     }
     //tostring

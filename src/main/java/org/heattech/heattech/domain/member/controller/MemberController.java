@@ -7,10 +7,7 @@ import org.heattech.heattech.domain.member.dto.MemberResponseDto;
 import org.heattech.heattech.domain.member.dto.SignupRequestDto;
 import org.heattech.heattech.domain.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -39,4 +36,5 @@ public class MemberController {
         memberService.logout(response);
         return ResponseEntity.noContent().build();
     }
+
 }

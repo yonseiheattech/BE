@@ -40,5 +40,4 @@ public class Letter {
 
     private String thanksNote;
 
-
 }

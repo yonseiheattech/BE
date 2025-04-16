@@ -1,14 +1,18 @@
 package org.heattech.heattech.domain.letter.controller;
 
+import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.dto.LetterCancelDto;
 import org.heattech.heattech.domain.letter.dto.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.LetterReplyDto;
 import org.heattech.heattech.domain.letter.service.LetterService;
 import org.heattech.heattech.domain.member.service.MemberService;
+import org.heattech.heattech.jwt.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/letters")
@@ -50,5 +54,12 @@ public class LetterController {
         Long id = letterService.cancelLetter(dto, senderId);
         return ResponseEntity.ok("삭제 완료" + id);
     }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<Letter>> getMyLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getId();
+        List<Letter> letters = letterService.getLettersBySenderId(userId);
+        return ResponseEntity.ok(letters);
+     }
 
 }

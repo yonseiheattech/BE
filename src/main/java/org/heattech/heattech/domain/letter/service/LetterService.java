@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -81,5 +82,10 @@ public class LetterService {
 
         letter.setStatus(Status.CANCELED);
         return letter.getId();
+    }
+
+    public List<Letter> getLettersBySenderId(Long senderId) {
+        return letterRepository.findAllBySenderId(senderId);
+
     }
 }

@@ -1,5 +1,6 @@
 package org.heattech.heattech.domain.member.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse; //클라이언트에게 응답 보낼 때 사용되ㄴ는 객체
 import org.heattech.heattech.domain.member.domain.Member;
 import org.heattech.heattech.domain.member.dto.LoginRequestDto;
@@ -48,8 +49,8 @@ public class MemberService {
             throw new IllegalArgumentException("비밀번호 일치하지 않음");
         }
 
-        String accessToken = jwtUtil.generateAccessToken(member.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getUsername());
+        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getId(), member.getUsername());
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
@@ -99,5 +100,43 @@ public class MemberService {
         return memberRepository.findByUsername(username)
                 .orElseThrow(()-> new IllegalArgumentException("유저 없음"))
                 .getId();
+    }
+
+    public MemberResponseDto getMyInfo(HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = jwtUtil.extractAccessTokenFromCookie(request);
+
+        if(accessToken != null && jwtUtil.validateToken(accessToken)) {
+            String username = jwtUtil.getUsernameFromToken(accessToken);
+            Member member = memberRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
+
+            return new MemberResponseDto(member.getUsername());
+        }
+
+        String refreshToken = jwtUtil.extractRefreshTokenFromCookie(request);
+
+        if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("로그인 정보가 유효하지 않습니다.");
+        }
+
+        Long id = jwtUtil.getUserIdFromToken(refreshToken);
+        String username = jwtUtil.getUsernameFromToken(refreshToken);
+
+        String newAccessToken = jwtUtil.generateAccessToken(id, username);
+
+        ResponseCookie newAccessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(60 * 60) // 1시간
+                .build();
+
+        response.addHeader("Set-Cookie", newAccessTokenCookie.toString());
+
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다."));
+
+        return new MemberResponseDto(member.getUsername());
     }
 }

@@ -24,18 +24,20 @@ public class JwtUtil {
     private final long ACCESS_EXPIRATION_TIME = 1000*60*60; //1시간
     private final long REFRESH_EXPIRATION_TIME = 1000*60*60*24;
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(Long id, String username) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(id))
+                .claim("username", username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
                 .signWith(key)
                 .compact();
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(Long id, String username) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(id))
+                .claim("username", username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME ))
                 .signWith(key)
@@ -102,13 +104,24 @@ public class JwtUtil {
         }
     }
 
+    public Long getUserIdFromToken(String token) {
+        return Long.valueOf(
+                Jwts.parser()
+                        .setSigningKey(key)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .getSubject()
+        );
+    }
+
     public String getUsernameFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject();
+                .get("username", String.class); //claim에서 꺼냄
 
     }
 }

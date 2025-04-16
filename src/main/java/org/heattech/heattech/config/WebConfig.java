@@ -12,6 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // 모든 API 경로에 대해
                 .allowedOrigins("http://localhost:3000") // 프론트 주소
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
                 .allowCredentials(true); // 쿠키 사용 허용 시
     }
 }

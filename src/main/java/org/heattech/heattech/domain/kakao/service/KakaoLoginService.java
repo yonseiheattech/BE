@@ -6,9 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.heattech.heattech.domain.kakao.dto.KakaoUser;
 import org.heattech.heattech.domain.member.domain.Member;
 import org.heattech.heattech.domain.member.domain.Role;
+import org.heattech.heattech.jwt.JwtTokenDto;
+import org.heattech.heattech.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.heattech.heattech.domain.member.repository.MemberRepository;
-import org.heattech.heattech.domain.member.util.JwtUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,17 +42,28 @@ public class KakaoLoginService {
     private final String tokenUri = "https://kauth.kakao.com/oauth/token";
     private final String userInfoUri = "https://kapi.kakao.com/v2/user/me";
 
-    public String kakaoLogin(String code) {
-        String accessToken = getAccessToken(code);
-        KakaoUser kakaoUser = getUserInfo(accessToken);
+    public JwtTokenDto kakaoLogin(String code) {
+        String kakaoAccessToken = getAccessToken(code);
+        KakaoUser kakaoUser = getUserInfo(kakaoAccessToken);
 
         Optional<Member> optionalMember = memberRepository.findByKakaoId(kakaoUser.getId());
-        Member member = optionalMember.orElseGet(() -> {
-            Member newMember = new Member(kakaoUser.getId(), kakaoUser.getNickname(), Role.VOLUNTEER);
-            return memberRepository.save(newMember);
-        });
 
-        return jwtUtil.generateAccessToken(member.getUsername());
+        Member member;
+        if (optionalMember.isPresent()) {
+            member = optionalMember.get();
+        } else {
+            member = new Member(
+                    kakaoUser.getId(),
+                    kakaoUser.getNickname(),
+                    Role.VOLUNTEER
+            );
+            memberRepository.save(member);
+        }
+
+        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getId(), member.getUsername());
+
+        return new JwtTokenDto(accessToken, refreshToken);
     }
 
     private String getAccessToken(String code) {
@@ -75,6 +88,7 @@ public class KakaoLoginService {
             throw new RuntimeException("카카오 토큰 파싱 실패", e);
         }
     }
+
 
     private KakaoUser getUserInfo(String accessToken) {
         HttpHeaders headers = new HttpHeaders();

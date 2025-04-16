@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,21 +29,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = jwtUtil.extractAccessTokenFromCookie(request);
 
-        if(accessToken != null && jwtUtil.validateToken(accessToken)) {
+        if (accessToken != null && jwtUtil.validateToken(accessToken)) {
+            Long userId = jwtUtil.getUserIdFromToken(accessToken);
             String username = jwtUtil.getUsernameFromToken(accessToken);
+            authenticateUser(userId, username);
+        } else {
+            String refreshToken = jwtUtil.extractRefreshTokenFromCookie(request);
 
-            UserDetails userDetails = User.builder()
-                    .username(username)
-                    .password("")
-                    .authorities(Collections.emptyList())
-                    .build();
+            if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
+                Long userId = jwtUtil.getUserIdFromToken(accessToken);
+                String username = jwtUtil.getUsernameFromToken(refreshToken);
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                // access token 재발급
+                String newAccessToken = jwtUtil.generateAccessToken(userId, username);
+                ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .sameSite("Lax")
+                        .maxAge(60 * 60)
+                        .build();
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                response.addHeader("Set-Cookie", accessTokenCookie.toString());
+
+                // SecurityContext 등록
+                authenticateUser(userId, username);
+
+            }
+
         }
+        filterChain.doFilter(request, response);    
+    }
 
-        filterChain.doFilter(request, response);
+    private void authenticateUser(Long userId, String username) {
+        CustomUserDetails userDetails = new CustomUserDetails(userId, username);
 
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }

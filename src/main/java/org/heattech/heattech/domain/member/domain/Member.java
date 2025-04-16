@@ -58,6 +58,7 @@ public class Member {
         this.kakaoId = kakaoId;
         this.username = nickname;
         this.role = role;
+        this.password = "SOCIAL_LOGIN";
     }
     //tostring
 }

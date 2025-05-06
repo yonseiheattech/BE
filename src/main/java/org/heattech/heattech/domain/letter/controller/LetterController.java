@@ -1,10 +1,11 @@
 package org.heattech.heattech.domain.letter.controller;
 
 import org.heattech.heattech.domain.letter.domain.Letter;
-import org.heattech.heattech.domain.letter.dto.LetterCancelDto;
-import org.heattech.heattech.domain.letter.dto.LetterRegisterDto;
-import org.heattech.heattech.domain.letter.dto.LetterReplyDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
 import org.heattech.heattech.domain.letter.service.LetterService;
+import org.heattech.heattech.domain.member.domain.Role;
 import org.heattech.heattech.domain.member.service.MemberService;
 import org.heattech.heattech.jwt.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
@@ -55,11 +56,23 @@ public class LetterController {
         return ResponseEntity.ok("삭제 완료" + id);
     }
 
-    @GetMapping("/mine")
-    public ResponseEntity<List<Letter>> getMyLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getId();
-        List<Letter> letters = letterService.getLettersBySenderId(userId);
-        return ResponseEntity.ok(letters);
-     }
 
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Letter>> getMyAllLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getId();
+        Role role = userDetails.getRole();
+
+        return ResponseEntity.ok(letterService.getMyLetters(userId, role));
+    }
+
+    @GetMapping("/my/{code}")
+    public ResponseEntity<Letter> getMyLetterByCode(@PathVariable String code, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getId();
+        Role role = userDetails.getRole();
+
+        return ResponseEntity.ok(letterService.getMyLetterByCode(code, userId, role));
+    }
 }

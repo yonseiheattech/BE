@@ -39,8 +39,11 @@ public class KakaoLoginService {
     @Value("${kakao.redirect-uri}")
     private String redirectUri;
 
-    private final String tokenUri = "https://kauth.kakao.com/oauth/token";
-    private final String userInfoUri = "https://kapi.kakao.com/v2/user/me";
+    @Value("${kakao.token-uri}")
+    private String tokenUri;
+
+    @Value("${kakao.user-info-uri}")
+    private String userInfoUri;
 
     public JwtTokenDto kakaoLogin(String code) {
         String kakaoAccessToken = getAccessToken(code);
@@ -60,8 +63,10 @@ public class KakaoLoginService {
             memberRepository.save(member);
         }
 
-        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(member.getId(), member.getUsername());
+        Role role = member.getRole();
+        String roleString = role.name();
+        String accessToken = jwtUtil.generateAccessToken(member.getId(), member.getUsername(), roleString);
+        String refreshToken = jwtUtil.generateRefreshToken(member.getId(), member.getUsername(), roleString);
 
         return new JwtTokenDto(accessToken, refreshToken);
     }

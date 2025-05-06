@@ -6,9 +6,11 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -19,27 +21,40 @@ import java.util.Date;
 @Slf4j //log 관련
 public class JwtUtil {
 
-    private static final String SECRET = "my-super-secret-key-12345678901234567890123456789012"; // 256bit 이상!
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-    private final long ACCESS_EXPIRATION_TIME = 1000*60*60; //1시간
-    private final long REFRESH_EXPIRATION_TIME = 1000*60*60*24;
+    @Value("${JWT_SECRET}")
+    private String secret; // 256bit 이상!
 
-    public String generateAccessToken(Long id, String username) {
+    private Key key;
+
+    @Value("${JWT_ACCESS_EXPIRE_MS}")
+    private long accessExpirationTime;
+
+    @Value("${JWT_REFRESH_EXPIRE_MS}")
+    private long refreshExpirationTime;
+
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String generateAccessToken(Long id, String username, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
                 .claim("username", username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
                 .signWith(key)
                 .compact();
     }
 
-    public String generateRefreshToken(Long id, String username) {
+    public String generateRefreshToken(Long id, String username, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
                 .claim("username", username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME ))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime ))
                 .signWith(key)
                 .compact();
     }
@@ -123,5 +138,14 @@ public class JwtUtil {
                 .getBody()
                 .get("username", String.class); //claim에서 꺼냄
 
+    }
+
+    public String getRoleFromToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }

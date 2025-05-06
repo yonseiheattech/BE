@@ -3,12 +3,15 @@ package org.heattech.heattech.domain.member.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.heattech.heattech.domain.member.domain.Member;
+import org.heattech.heattech.domain.member.domain.Role;
 import org.heattech.heattech.domain.member.dto.LoginRequestDto;
 import org.heattech.heattech.domain.member.dto.LoginResponseDto;
 import org.heattech.heattech.domain.member.dto.MemberResponseDto;
 import org.heattech.heattech.domain.member.dto.SignupRequestDto;
 import org.heattech.heattech.domain.member.repository.MemberRepository;
 import org.heattech.heattech.domain.member.service.MemberService;
+import org.heattech.heattech.jwt.CustomUserDetails;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,16 +49,14 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<MemberResponseDto> getMyInfo(@AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String username = userDetails.getUsername();
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
-        return ResponseEntity.ok(new MemberResponseDto(member.getUsername()));
+        return ResponseEntity.ok(
+                new MemberResponseDto(userDetails.getUsername(), userDetails.getRole())
+        );
     }
-
 
 }

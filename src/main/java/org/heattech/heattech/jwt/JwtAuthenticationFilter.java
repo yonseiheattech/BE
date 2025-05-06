@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.heattech.heattech.domain.member.domain.Role;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,16 +33,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (accessToken != null && jwtUtil.validateToken(accessToken)) {
             Long userId = jwtUtil.getUserIdFromToken(accessToken);
             String username = jwtUtil.getUsernameFromToken(accessToken);
-            authenticateUser(userId, username);
+            String roleString = jwtUtil.getRoleFromToken(accessToken);
+            Role role = Role.valueOf(roleString);
+            authenticateUser(userId, username, role); //role도 여기서 넣음
         } else {
             String refreshToken = jwtUtil.extractRefreshTokenFromCookie(request);
 
             if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
-                Long userId = jwtUtil.getUserIdFromToken(accessToken);
+                Long userId = jwtUtil.getUserIdFromToken(refreshToken);
                 String username = jwtUtil.getUsernameFromToken(refreshToken);
+                String roleString = jwtUtil.getRoleFromToken(refreshToken);
 
                 // access token 재발급
-                String newAccessToken = jwtUtil.generateAccessToken(userId, username);
+                String newAccessToken = jwtUtil.generateAccessToken(userId, username, roleString);
                 ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
                         .httpOnly(true)
                         .secure(true)
@@ -53,7 +57,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.addHeader("Set-Cookie", accessTokenCookie.toString());
 
                 // SecurityContext 등록
-                authenticateUser(userId, username);
+                Role role = Role.valueOf(roleString);
+                authenticateUser(userId, username, role);
 
             }
 
@@ -61,8 +66,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);    
     }
 
-    private void authenticateUser(Long userId, String username) {
-        CustomUserDetails userDetails = new CustomUserDetails(userId, username);
+    private void authenticateUser(Long userId, String username, Role role) {
+        CustomUserDetails userDetails = new CustomUserDetails(userId, username, role);
 
 
         UsernamePasswordAuthenticationToken authToken =

@@ -1,4 +1,4 @@
-package org.heattech.heattech.domain.letter.dto;
+package org.heattech.heattech.domain.letter.dto.letter;
 
 import lombok.Getter;
 

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface LetterRepository extends JpaRepository <Letter, Long> {
     Optional<Letter> findByCode(String code);
     List<Letter> findAllBySenderId(Long senderId);
+    List<Letter> findAllByVolunteerId(Long volunteerId);
 }

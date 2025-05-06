@@ -2,10 +2,13 @@ package org.heattech.heattech.domain.letter.service;
 
 import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.domain.Status;
-import org.heattech.heattech.domain.letter.dto.LetterCancelDto;
-import org.heattech.heattech.domain.letter.dto.LetterRegisterDto;
-import org.heattech.heattech.domain.letter.dto.LetterReplyDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
+import org.heattech.heattech.domain.member.domain.Role;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,7 @@ public class LetterService {
         //추후 DB에서 중복 조회
     }
 
+    @PreAuthorize("hasAuthority('ROLE_SENDER')")
     @Transactional//save 안해도 됨?
     public Long registerLetter(LetterRegisterDto dto, Long senderIdFromAuth) {
 
@@ -60,6 +64,7 @@ public class LetterService {
         return letter.getId();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_VOLUNTEER')")
     public Long replyLetter(LetterReplyDto dto, Long volunteerIdFromAuth) {
         Letter letter = letterRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("코드가 없는데요?"));
@@ -72,6 +77,7 @@ public class LetterService {
         return letter.getId();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_SENDER')")
     public Long cancelLetter(LetterCancelDto dto, Long senderId) {
         Letter letter = letterRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("코드가 없네"));
@@ -84,8 +90,43 @@ public class LetterService {
         return letter.getId();
     }
 
-    public List<Letter> getLettersBySenderId(Long senderId) {
-        return letterRepository.findAllBySenderId(senderId);
+
+    //전체편지 가져오기
+    public List<Letter> getMyLetters(Long userId, Role role) {
+
+        if (role == Role.SENDER) {
+            return letterRepository.findAllBySenderId(userId);
+        } else if (role == Role.VOLUNTEER) {
+            return letterRepository.findAllByVolunteerId(userId);
+        } else {
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+        }
 
     }
+
+
+    //편지 하나 가져오기
+    public Letter getMyLetterByCode(String code, Long userId, Role role) {
+
+        // 편지 조회
+        Letter letter = letterRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("편지를 찾을 수 없습니다."));
+
+        // 역할에 따라 검증
+        if (role == Role.SENDER) {
+            if (!letter.getSenderId().equals(userId)) {
+                throw new AccessDeniedException("해당 편지를 조회할 권한이 없습니다.");
+            }
+        } else if (role == Role.VOLUNTEER) {
+            if (!letter.getVolunteerId().equals(userId)) {
+                throw new AccessDeniedException("해당 편지를 조회할 권한이 없습니다.");
+            }
+        } else {
+            throw new AccessDeniedException("권한이 없는 사용자입니다.");
+        }
+
+        return letter;
+    }
+
+
 }

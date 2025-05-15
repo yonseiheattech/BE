@@ -61,7 +61,7 @@ public class MemberService {
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(1))
                 .build();
 
@@ -69,7 +69,7 @@ public class MemberService {
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(24))
                 .build();
 
@@ -86,7 +86,7 @@ public class MemberService {
                 .secure(false)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
@@ -94,7 +94,7 @@ public class MemberService {
                 .secure(false)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", accessTokenCookie.toString());

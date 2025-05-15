@@ -59,17 +59,17 @@ public class MemberService {
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(Duration.ofHours(1))
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
-                .sameSite("None")
+                .sameSite("Lax")
                 .maxAge(Duration.ofHours(24))
                 .build();
 
@@ -83,18 +83,18 @@ public class MemberService {
         //삭제용 쿠키
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", accessTokenCookie.toString());

@@ -32,7 +32,7 @@ public class KakaoLoginController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(1))
                 .build();
 
@@ -40,7 +40,7 @@ public class KakaoLoginController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .sameSite("Lax")
+                .sameSite("None")
                 .maxAge(Duration.ofHours(24))
                 .build();
 

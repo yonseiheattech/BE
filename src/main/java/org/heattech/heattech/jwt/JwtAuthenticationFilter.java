@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .httpOnly(true)
                         .secure(true)
                         .path("/")
-                        .sameSite("Lax")
+                        .sameSite("None")
                         .maxAge(60 * 60)
                         .build();
 

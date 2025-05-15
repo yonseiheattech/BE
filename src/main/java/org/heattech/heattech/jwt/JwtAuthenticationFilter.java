@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String newAccessToken = jwtUtil.generateAccessToken(userId, username, roleString);
                 ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
                         .httpOnly(true)
-                        .secure(true)
+                        .secure(false)
                         .path("/")
                         .sameSite("Lax")
                         .maxAge(60 * 60)

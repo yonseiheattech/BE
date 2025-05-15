@@ -27,7 +27,7 @@ public class LetterController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/generate-code")
+    @GetMapping("/generate-code")
     public ResponseEntity<String> generateLetterCode(@AuthenticationPrincipal UserDetails userDetails) {
         Long senderId = memberService.findIdByUsername(userDetails.getUsername());
         String code = letterService.generateUniqueCode(senderId);

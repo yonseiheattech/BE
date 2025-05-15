@@ -30,7 +30,7 @@ public class KakaoLoginController {
 
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokens.getAccessToken())
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(Duration.ofHours(1))
@@ -38,7 +38,7 @@ public class KakaoLoginController {
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.getRefreshToken())
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(Duration.ofHours(24))

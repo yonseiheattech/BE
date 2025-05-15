@@ -40,5 +40,16 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "🔻 이전 프로세스 종료 중..."
             pkill -f 'java -jar' || true
-            nohup java -jar ~/app/*.jar --spring.profiles.active=prod > ~/heattech.log 2>&1 &
+            
+            echo "🧹 기존 jar 정리..."
+            rm -f ~/app/app.jar
+            
+            echo "📦 최신 jar 이름 변경..."
+            mv ~/app/*.jar ~/app/app.jar
+            
+            echo "🚀 새 프로세스 실행 시작..."
+            nohup java -jar ~/app/app.jar --spring.profiles.active=prod > ~/heattech.log 2>&1 &
+            
+            echo "✅ 실행 완료. 로그는 ~/heattech.log 에 저장됨"

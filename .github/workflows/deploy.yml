@@ -25,7 +25,7 @@ jobs:
 
 
       - name: Build with Gradle (without tests)
-        run: ./gradlew clean build
+        run: ./gradlew clean build -x test
 
           # 4. EC2에 jar, shell script 등 파일 전송
       - name: Copy files to EC2

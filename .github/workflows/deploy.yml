@@ -46,6 +46,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set +e
             cd ${{ secrets.REMOTE_APP_PATH }}
             echo "1. 기존 서버 종료"
             pkill -f 'java -jar heattech-0.0.1-jar' || true

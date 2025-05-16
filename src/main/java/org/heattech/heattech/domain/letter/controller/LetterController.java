@@ -37,15 +37,15 @@ public class LetterController {
 
     @PreAuthorize("hasRole('SENDER')")
     @PostMapping("/register")
-    public ResponseEntity<String> registerLetter(@RequestBody LetterRegisterDto dto, @AuthenticationPrincipal Object principal) {
+    public ResponseEntity<String> registerLetter(@RequestBody LetterRegisterDto dto, @AuthenticationPrincipal CustomUserDetails userDetails) {
         System.out.println("컨트롤러 진입!");
-        System.out.println("유저 디테일 : "+ principal);
-        /*
+
+
         Long senderId = memberService.findIdByUsername(userDetails.getUsername());
         Long id = letterService.registerLetter(dto, senderId);
 
-         */
-        return ResponseEntity.ok("편지 등록 완료 id: " );
+
+        return ResponseEntity.ok("편지 등록 완료 id: " +id );
 
 
     }

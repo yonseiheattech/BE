@@ -34,9 +34,15 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Copy JAR to server
-        run: |
-          scp -O -v build/libs/heattech-0.0.1-SNAPSHOT.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.REMOTE_APP_PATH }}/heattech-0.0.1-SNAPSHOT.jar
+      - name: Copy file to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "build/libs/heattech-0.0.1-SNAPSHOT.jar"
+          target: "${{ secrets.REMOTE_APP_PATH }}/heattech-0.0.1-SNAPSHOT.jar"
 
       - name: Restart service on server
         run: |

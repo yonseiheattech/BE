@@ -36,7 +36,7 @@ jobs:
 
       - name: Copy JAR to server
         run: |
-          scp build/libs/heattech-0.0.1-SNAPSHOT.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.REMOTE_APP_PATH }}/heattech-0.0.1-SNAPSHOT.jar
+          scp -v build/libs/heattech-0.0.1-SNAPSHOT.jar ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.REMOTE_APP_PATH }}/heattech-0.0.1-SNAPSHOT.jar
 
       - name: Restart service on server
         run: |

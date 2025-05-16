@@ -9,6 +9,7 @@ import org.heattech.heattech.domain.member.domain.Role;
 import org.heattech.heattech.domain.member.service.MemberService;
 import org.heattech.heattech.jwt.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,18 +29,25 @@ public class LetterController {
     }
 
     @GetMapping("/generate-code")
-    public ResponseEntity<String> generateLetterCode(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> generateLetterCode(@AuthenticationPrincipal CustomUserDetails userDetails) {
         Long senderId = memberService.findIdByUsername(userDetails.getUsername());
         String code = letterService.generateUniqueCode(senderId);
         return ResponseEntity.ok(code);
     }
 
+    @PreAuthorize("hasRole('SENDER')")
     @PostMapping("/register")
-    public ResponseEntity<String> registerLetter(@RequestBody LetterRegisterDto dto, @AuthenticationPrincipal UserDetails userDetails) {
-
+    public ResponseEntity<String> registerLetter(@RequestBody LetterRegisterDto dto, @AuthenticationPrincipal Object principal) {
+        System.out.println("컨트롤러 진입!");
+        System.out.println("유저 디테일 : "+ principal);
+        /*
         Long senderId = memberService.findIdByUsername(userDetails.getUsername());
         Long id = letterService.registerLetter(dto, senderId);
-        return ResponseEntity.ok("편지 등록 완료 id: " + id);
+
+         */
+        return ResponseEntity.ok("편지 등록 완료 id: " );
+
+
     }
 
     @PostMapping("/reply")

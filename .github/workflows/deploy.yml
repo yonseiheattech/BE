@@ -2,54 +2,54 @@ name: CI/CD to EC2 without Docker
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ dev ] #dev 브랜치에 push 될 때마다 동작
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      #소스코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up JDK
+      #JDK 세팅
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Grant execute permission to Gradle
-        run: chmod +x gradlew
-
       - name: Build with Gradle (without tests)
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build
 
-      - name: Copy .jar to EC2
-        uses: appleboy/scp-action@v0.1.3
+          # 4. EC2에 jar, shell script 등 파일 전송
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "~/app"
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          source: "build/libs/heattech-0.0.1-SNAPSHOT.jar"
+          target: ${{ secrets.REMOTE_APP_PATH }}
 
-      - name: SSH into EC2 and restart app
+      # 서버 종료, 최신코드 업데이트, 재실행
+      - name: Deploy on EC@
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🔻 이전 프로세스 종료 중..."
-            pkill -f 'java -jar' || true
-            
-            echo "🧹 기존 jar 정리..."
-            rm -f ~/app/app.jar
-            
-            echo "📦 최신 jar 이름 변경..."
-            mv ~/app/*.jar ~/app/app.jar
-            
-            echo "🚀 새 프로세스 실행 시작..."
-            nohup java -jar ~/app/app.jar --spring.profiles.active=prod > ~/heattech.log 2>&1 &
-            
-            echo "✅ 실행 완료. 로그는 ~/heattech.log 에 저장됨"
+            cd ${{ secrets.REMOTE_APP_PATH }}
+            echo "1. 기존 서버 종료"
+            pkill -f 'java -jar heattech.jar' || true
+
+            echo "2. 최신 코드 Pull"
+            git pull origin dev
+
+            echo "3. 빌드 & jar 생성"
+            ./gradlew clean build -x test
+
+            echo "4. 서버 백그라운드 실행"
+            nohup java -jar build/libs/heattech.jar > heattech.log 2>&1 &

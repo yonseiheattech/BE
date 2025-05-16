@@ -94,7 +94,7 @@ public class MemberService {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", accessTokenCookie.toString());

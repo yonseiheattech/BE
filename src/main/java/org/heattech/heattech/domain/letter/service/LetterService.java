@@ -43,7 +43,7 @@ public class LetterService {
         //추후 DB에서 중복 조회
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SENDER')")
+
     @Transactional//save 안해도 됨?
     public Long registerLetter(LetterRegisterDto dto, Long senderIdFromAuth) {
 
@@ -64,7 +64,7 @@ public class LetterService {
         return letter.getId();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_VOLUNTEER')")
+
     public Long replyLetter(LetterReplyDto dto, Long volunteerIdFromAuth) {
         Letter letter = letterRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("코드가 없는데요?"));
@@ -77,7 +77,7 @@ public class LetterService {
         return letter.getId();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_SENDER')")
+
     public Long cancelLetter(LetterCancelDto dto, Long senderId) {
         Letter letter = letterRepository.findByCode(dto.getCode())
                 .orElseThrow(() -> new IllegalArgumentException("코드가 없네"));

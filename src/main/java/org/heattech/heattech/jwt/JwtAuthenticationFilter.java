@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.heattech.heattech.domain.member.domain.Role;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -29,15 +30,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = jwtUtil.extractAccessTokenFromCookie(request);
+        String refreshToken = jwtUtil.extractRefreshTokenFromCookie(request);
+
+        System.out.println("✅ accessToken from cookie: " + accessToken);
+        System.out.println("✅ refreshToken from cookie: " + refreshToken);
 
         if (accessToken != null && jwtUtil.validateToken(accessToken)) {
             Long userId = jwtUtil.getUserIdFromToken(accessToken);
             String username = jwtUtil.getUsernameFromToken(accessToken);
             String roleString = jwtUtil.getRoleFromToken(accessToken);
+
+            System.out.println("✅ token valid, userId: " + userId + ", username: " + username + ", role: " + roleString);
             Role role = Role.valueOf(roleString);
             authenticateUser(userId, username, role); //role도 여기서 넣음
+            System.out.println("넌 인증된 사용자!");
         } else {
-            String refreshToken = jwtUtil.extractRefreshTokenFromCookie(request);
 
             if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
                 Long userId = jwtUtil.getUserIdFromToken(refreshToken);
@@ -69,6 +76,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticateUser(Long userId, String username, Role role) {
         CustomUserDetails userDetails = new CustomUserDetails(userId, username, role);
 
+        System.out.println("✅ userDetails.getAuthorities(): " + userDetails.getAuthorities());
+        for (GrantedAuthority authority : userDetails.getAuthorities()) {
+            System.out.println("🔎 authority.getAuthority(): " + authority.getAuthority());
+        }
 
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

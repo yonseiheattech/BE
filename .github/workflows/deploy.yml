@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    #하하하하하 test15
+    #하하하하하 test16
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -50,10 +50,11 @@ jobs:
       - name: Restart service on server
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            cd ${{ secrets.REMOTE_APP_PATH }}
             pids=$(pgrep -f 'java -jar')
             if [ -n "$pids" ]; then
             kill -9 $pids
           fi
-            nohup java -jar ${{ secrets.REMOTE_APP_PATH }}/heattech-0.0.1-SNAPSHOT.jar > ${{ secrets.REMOTE_APP_PATH }}/heattech.log 2>&1 &
+            nohup java -jar heattech-0.0.1-SNAPSHOT.jar > ${{ secrets.REMOTE_APP_PATH }}/heattech.log 2>&1 &
             exit
           EOF

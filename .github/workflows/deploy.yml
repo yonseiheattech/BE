@@ -7,7 +7,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    #하하하하
+    #하하하하하 test14
     steps:
       - name: Checkout code
         uses: actions/checkout@v3

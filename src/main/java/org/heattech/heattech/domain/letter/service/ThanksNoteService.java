@@ -40,8 +40,11 @@ public class ThanksNoteService {
                 .content(dto.getContent())
                 .build();
 
-        thanksNoteRepository.save(thanksNote);
+        letter.setThanksNote(thanksNote);
 
+        letterRepository.save(letter);
+
+        //ThanksNOte는 저장 안 해도 됨 letter 저장하면서 자동으로 됨
 
         return thanksNote.getId();
     }

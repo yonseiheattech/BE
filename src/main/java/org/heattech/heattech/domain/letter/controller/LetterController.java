@@ -2,6 +2,7 @@ package org.heattech.heattech.domain.letter.controller;
 
 import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterDeliverDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
 import org.heattech.heattech.domain.letter.service.LetterService;
@@ -55,6 +56,13 @@ public class LetterController {
         Long volunteerId = memberService.findIdByUsername(userDetails.getUsername());
         Long id = letterService.replyLetter(dto, volunteerId);
         return ResponseEntity.ok("답장 상태 변경 완료" + id);
+    }
+
+    @PostMapping("/deliver")
+    public ResponseEntity<String> deliverLetter(@RequestBody LetterDeliverDto dto, @AuthenticationPrincipal UserDetails userDetails) {
+        Long senderId = memberService.findIdByUsername(userDetails.getUsername());
+        Long id = letterService.deliverLetter(dto, senderId);
+        return ResponseEntity.ok("답장 수령으로 변경" + id);
     }
 
     @PostMapping("/cancel")

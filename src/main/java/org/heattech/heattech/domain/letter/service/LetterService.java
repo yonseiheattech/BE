@@ -3,6 +3,7 @@ package org.heattech.heattech.domain.letter.service;
 import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.domain.Status;
 import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterDeliverDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
@@ -87,6 +88,18 @@ public class LetterService {
         }
 
         letter.setStatus(Status.CANCELED);
+        return letter.getId();
+    }
+
+    public Long deliverLetter(LetterDeliverDto dto, Long senderId) {
+        Letter letter = letterRepository.findByCode(dto.getCode())
+                .orElseThrow(() -> new IllegalArgumentException("코드가 없네"));
+
+        if (!letter.getSenderId().equals(senderId)) {
+            throw new IllegalStateException("본인의 편지만 취소할 수 있습니다.");
+        }
+
+        letter.setStatus(Status.DELIVERED);
         return letter.getId();
     }
 

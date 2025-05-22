@@ -51,6 +51,8 @@ jobs:
         run: |
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
             cd ${{ secrets.REMOTE_APP_PATH }}
+            git pull origin dev
+            ./gradlew clean build -x test
             pids=$(pgrep -f 'java -jar')
             if [ -n "$pids" ]; then
             kill -9 $pids

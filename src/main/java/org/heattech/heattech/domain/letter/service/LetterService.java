@@ -117,9 +117,9 @@ public class LetterService {
         List<Letter> letters;
 
         if (role == Role.SENDER) {
-            return letterRepository.findAllBySenderId(userId);
+            letters =letterRepository.findAllBySenderId(userId);
         } else if (role == Role.VOLUNTEER) {
-            return letterRepository.findAllByVolunteerId(userId);
+            letters = letterRepository.findAllByVolunteerId(userId);
         } else {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }

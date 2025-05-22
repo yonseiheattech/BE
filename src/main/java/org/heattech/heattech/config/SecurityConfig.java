@@ -60,7 +60,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // patterns로 변경!
-        config.setAllowedOrigins(List.of("https://heattech-yonsei.shop", "https://www.heattech-yonsei.shop")); //로컬을 빼보겠습니다
+        config.setAllowedOriginPatterns(List.of("*")); //로컬을 빼보겠습니다 "https://heattech-yonsei.shop", "https://www.heattech-yonsei.shop"
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

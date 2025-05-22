@@ -27,6 +27,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+
+        // JWT 필터를 건너뛰고 싶은 경로들
+        return path.startsWith("/api/v1/auth/") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.equals("/swagger-ui.html") ||
+                path.equals("/api/members/login") ||
+                path.equals("/api/members/signup") ||
+                path.equals("/api/kakao/login");
+
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = jwtUtil.extractAccessTokenFromCookie(request);

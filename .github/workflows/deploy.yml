@@ -35,14 +35,19 @@ jobs:
             git pull origin dev
             ./gradlew clean build -x test > build.log 2>&1
             cat build.log
+            echo "빌드 성공, JAR 확인"
             if [ ! -f build/libs/heattech-0.0.1-SNAPSHOT.jar ]; then
               echo "❌ JAR 파일 생성 실패!"
               exit 1
             fi
+            echo "JAR 있음, 서버 프로세스 종료 시도"
             pids=\$(pgrep -f 'java -jar')
             if [ -n "\$pids" ]; then
               kill -9 \$pids
+              echo "기존 서버 종료"
             fi
+            echo "새 서버 실행"
             nohup java -jar build/libs/heattech-0.0.1-SNAPSHOT.jar > heattech.log 2>&1 &
+            echo "서버 실행 완료"
             exit
           EOF

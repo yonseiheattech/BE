@@ -88,6 +88,9 @@ public class LetterService {
         }
 
         letter.setStatus(Status.CANCELED);
+        letter.setDeliveredAt(LocalDateTime.now());
+
+        letterRepository.save(letter);
         return letter.getId();
     }
 

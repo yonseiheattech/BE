@@ -5,6 +5,7 @@ import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterDeliverDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterResponseDto;
 import org.heattech.heattech.domain.letter.service.LetterService;
 import org.heattech.heattech.domain.member.domain.Role;
 import org.heattech.heattech.domain.member.service.MemberService;
@@ -75,7 +76,7 @@ public class LetterController {
 
 
     @GetMapping("/my")
-    public ResponseEntity<List<Letter>> getMyAllLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<LetterResponseDto>> getMyAllLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         Long userId = userDetails.getId();
         Role role = userDetails.getRole();

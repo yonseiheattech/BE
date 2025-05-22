@@ -6,6 +6,7 @@ import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterDeliverDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterRegisterDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterReplyDto;
+import org.heattech.heattech.domain.letter.dto.letter.LetterResponseDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
 import org.heattech.heattech.domain.member.domain.Role;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class LetterService {
@@ -111,7 +113,8 @@ public class LetterService {
 
 
     //전체편지 가져오기
-    public List<Letter> getMyLetters(Long userId, Role role) {
+    public List<LetterResponseDto> getMyLetters(Long userId, Role role) {
+        List<Letter> letters;
 
         if (role == Role.SENDER) {
             return letterRepository.findAllBySenderId(userId);
@@ -120,6 +123,8 @@ public class LetterService {
         } else {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
+
+        return letters.stream().map(LetterResponseDto::new).collect(Collectors.toList());
 
     }
 

@@ -48,6 +48,5 @@ jobs:
             fi
             echo "새 서버 실행"
             nohup java -jar build/libs/heattech-0.0.1-SNAPSHOT.jar > heattech.log 2>&1 &
-            echo "서버 실행 완료"
-            exit
+            echo "서버 실행 완료"g
           EOF

@@ -10,7 +10,6 @@ import org.heattech.heattech.domain.letter.dto.letter.LetterResponseDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
 import org.heattech.heattech.domain.member.domain.Role;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,6 +125,21 @@ public class LetterService {
 
         return letters.stream().map(LetterResponseDto::new).collect(Collectors.toList());
 
+    }
+
+    //봉사자 편지 하나 가져오기
+    public Letter volGetMyLetterByCode(String code, Long userId, Role role) {
+        Letter letter = letterRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("편지를 찾을 수 없습니다."));
+
+        if (role == Role.VOLUNTEER) {
+            if (!letter.getVolunteerId().equals(userId)) {
+                throw new AccessDeniedException("해당 편지를 조회할 권한이 없습니다.");
+            }
+        } else {
+            throw new AccessDeniedException("권한이 없는 사용자입니다.");
+        }
+        return letter;
     }
 
 

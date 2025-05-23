@@ -1,5 +1,6 @@
 package org.heattech.heattech.domain.letter.controller;
 
+import lombok.Getter;
 import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.dto.letter.LetterCancelDto;
 import org.heattech.heattech.domain.letter.dto.letter.LetterDeliverDto;
@@ -91,5 +92,14 @@ public class LetterController {
         Role role = userDetails.getRole();
 
         return ResponseEntity.ok(letterService.getMyLetterByCode(code, userId, role));
+    }
+
+    @GetMapping("/vol/my/{code}")
+    public ResponseEntity<Letter> volGetMyLetterByCode(@PathVariable String code, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getId();
+        Role role = userDetails.getRole();
+
+        return ResponseEntity.ok(letterService.volGetMyLetterByCode(code, userId, role));
     }
 }

@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(    SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/members/login","/api/members/signup","/api/kakao/login").permitAll()
+                        .requestMatchers("/api/members/login","/api/members/signup","/api/kakao/login", "/api/poseboxes").permitAll()
                         .anyRequest().authenticated()
                 )
 

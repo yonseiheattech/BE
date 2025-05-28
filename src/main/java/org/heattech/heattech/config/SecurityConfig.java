@@ -43,12 +43,12 @@ public class SecurityConfig {
                                 "/api/members/signup",
                                 "/api/kakao/login",
                                 "/api/postboxes",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/index.html",
-                                "/swagger-resources/**",
-                                "/webjars/**"
+                                "/api/swagger-ui/**",
+                                "/api/v3/api-docs/**",
+                                "/api/swagger-ui.html",
+                                "/api/swagger-ui/index.html",
+                                "/api/swagger-resources/**",
+                                "/api/webjars/**"
                         ).permitAll()
 
                         .anyRequest().authenticated()

@@ -32,10 +32,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // JWT 필터를 건너뛰고 싶은 경로들
         return path.startsWith("/api/v1/auth/") ||
-                path.startsWith("/swagger-ui") ||
-                path.startsWith("/v3/api-docs") ||
-                path.startsWith("/webjars/") ||
-                path.equals("/swagger-ui.html") ||
+                path.startsWith("/api/swagger-ui") ||
+                path.startsWith("/api/v3/api-docs") ||
+                path.startsWith("/api/webjars/") ||
+                path.equals("/api/swagger-ui.html") ||
                 path.equals("/api/members/login") ||
                 path.equals("/api/members/signup") ||
                 path.equals("/api/kakao/login") ||

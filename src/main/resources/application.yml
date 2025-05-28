@@ -24,3 +24,10 @@ jwt:
   secret: ${JWT_SECRET}
   access-expire-ms: ${JWT_ACCESS_EXPIRE_MS:3600000}
   refresh-expire-ms: ${JWT_REFRESH_EXPIRE_MS:86400000}
+
+
+springdoc:
+  api-docs:
+    path: /api/v3/api-docs
+  swagger-ui:
+    path: /api/swagger-ui.html

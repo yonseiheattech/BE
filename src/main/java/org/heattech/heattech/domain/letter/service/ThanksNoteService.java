@@ -5,12 +5,16 @@ import lombok.RequiredArgsConstructor;
 import org.heattech.heattech.domain.letter.domain.Letter;
 import org.heattech.heattech.domain.letter.domain.ThanksNote;
 import org.heattech.heattech.domain.letter.dto.thanksnote.ThanksNoteRequestDto;
+import org.heattech.heattech.domain.letter.dto.thanksnote.ThanksNoteResponseDto;
 import org.heattech.heattech.domain.letter.repository.LetterRepository;
 import org.heattech.heattech.domain.letter.repository.ThanksNoteRepository;
 import org.heattech.heattech.domain.member.domain.Role;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +51,13 @@ public class ThanksNoteService {
         //ThanksNOte는 저장 안 해도 됨 letter 저장하면서 자동으로 됨
 
         return thanksNote.getId();
+    }
+
+    public List<ThanksNoteResponseDto> getAllThanksNotes() {
+        List<ThanksNote> notes = thanksNoteRepository.findAll();
+        return notes.stream()
+                .map(ThanksNoteResponseDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
     //자신이 답장한 모든 편지 감사노트 모아보깅

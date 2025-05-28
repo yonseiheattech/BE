@@ -101,5 +101,6 @@ public class LetterController {
         Role role = userDetails.getRole();
 
         return ResponseEntity.ok(letterService.volGetMyLetterByCode(code, userId, role));
+
     }
 }

@@ -38,7 +38,19 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(    SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/members/login","/api/members/signup","/api/kakao/login", "/api/postboxes").permitAll()
+                        .requestMatchers(
+                                "/api/members/login",
+                                "/api/members/signup",
+                                "/api/kakao/login",
+                                "/api/postboxes",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/index.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
                         .anyRequest().authenticated()
                 )
 

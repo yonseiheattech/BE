@@ -82,7 +82,7 @@ public class LetterController {
         Long userId = userDetails.getId();
         Role role = userDetails.getRole();
 
-        return ResponseEntity.ok(letterService.getMyLetters(userId, role));
+        return ResponseEntity.ok(letterService.getMyLetters(userId));
     }
 
     @GetMapping("/my/{code}")
@@ -102,5 +102,13 @@ public class LetterController {
 
         return ResponseEntity.ok(letterService.volGetMyLetterByCode(code, userId, role));
 
+    }
+
+    @GetMapping("/vol/my")
+    public ResponseEntity<List<LetterResponseDto>> volGetMyAllLetters(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getId();
+        Role role = userDetails.getRole();
+
+        return ResponseEntity.ok(letterService.volGetMyAllLetters(userId, role));
     }
 }

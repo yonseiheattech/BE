@@ -112,15 +112,23 @@ public class LetterService {
 
 
     //전체편지 가져오기
-    public List<LetterResponseDto> getMyLetters(Long userId, Role role) {
+    public List<LetterResponseDto> getMyLetters(Long userId) {
         List<Letter> letters;
 
-        if (role == Role.SENDER) {
-            letters =letterRepository.findAllBySenderId(userId);
-        } else if (role == Role.VOLUNTEER) {
-            letters = letterRepository.findAllByVolunteerId(userId);
-        } else {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+        letters =letterRepository.findAllBySenderId(userId);
+
+        return letters.stream().map(LetterResponseDto::new).collect(Collectors.toList());
+
+    }
+
+    //봉사자 전체 편지 가져오기
+    public List<LetterResponseDto> volGetMyAllLetters(Long userId, Role role) {
+        List<Letter> letters;
+        letters = letterRepository.findAllByVolunteerId(userId);
+
+        if (role != Role.VOLUNTEER) {
+            throw new AccessDeniedException("해당 편지를 조회할 권한이 없습니다.");
+
         }
 
         return letters.stream().map(LetterResponseDto::new).collect(Collectors.toList());
